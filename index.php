@@ -115,7 +115,7 @@
 					<a href="#" class="navbar-link dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
 						<img src="assets/img/user/user-13.jpg" alt="" /> 
 						<span>
-							<span class="d-none d-md-inline">meryam zwina</span>
+							<span class="d-none d-md-inline">meryam kamaych</span>
 							<b class="caret"></b>
 						</span>
 					</a>
@@ -221,7 +221,7 @@
 				</div>
 				
 				<div class="ms-auto">
-				<a href="#modal-task" data-bs-toggle="modal" class="btn btn-success btn-rounded px-4 rounded-pill"><i class="fa fa-plus fa-lg me-2 ms-n2 text-success-900"></i> Add Task</a>
+				<a href="#modal-task" data-bs-toggle="modal" class="btn btn-success btn-rounded px-4 rounded-pill"  onclick="addTask()"><i class="fa fa-plus fa-lg me-2 ms-n2 text-success-900"></i> Add Task</a>
 				</div>
 			</div>
 			
@@ -255,7 +255,7 @@
 				<div class="col-xl-4 col-lg-6">
 					<div class="panel panel-inverse">
 						<div class="panel-heading">
-							<h4 class="panel-title">To do (<span id="to-do-tasks-count">0</span>)</h4>
+							<h4 class="panel-title">To do (<span id="to-do-tasks-count"><?php Countt(1); ?></span>)</h4>
 							<div class="panel-heading-btn">
 								<a href="javascript:;" class="btn btn-xs btn-icon btn-default" data-toggle="panel-expand"><i class="fa fa-expand"></i></a>
 								<a href="javascript:;" class="btn btn-xs btn-icon btn-success" data-toggle="panel-reload"><i class="fa fa-redo"></i></a>
@@ -267,7 +267,7 @@
 							<!-- TO DO TASKS HERE -->
 							<?php
 								//PHP CODE HERE
-								getTasks(1);
+								getTasks('To Do');
 								//DATA FROM getTasks() FUNCTION
 							?>
 						</div>
@@ -276,7 +276,7 @@
 				<div class="col-xl-4 col-lg-6">
 					<div class="panel panel-inverse">
 						<div class="panel-heading">
-							<h4 class="panel-title">In Progress (<span id="in-progress-tasks-count">0</span>)</h4>
+							<h4 class="panel-title">In Progress (<span id="in-progress-tasks-count"><?php Countt(2);?></span>)</h4>
 							<div class="panel-heading-btn">
 								<a href="javascript:;" class="btn btn-xs btn-icon btn-default" data-toggle="panel-expand"><i class="fa fa-expand"></i></a>
 								<a href="javascript:;" class="btn btn-xs btn-icon btn-success" data-toggle="panel-reload"><i class="fa fa-redo"></i></a>
@@ -288,7 +288,8 @@
 							<!-- IN PROGRESS TASKS HERE -->
 							<?php
 								//PHP CODE HERE
-								getTasks(2);
+								getTasks('In progress');
+
 								//DATA FROM getTasks() FUNCTION
 							?>
 						</div>
@@ -297,7 +298,7 @@
 				<div class="col-xl-4 col-lg-6">
 					<div class="panel panel-inverse">
 						<div class="panel-heading">
-							<h4 class="panel-title">Done (<span id="done-tasks-count">0</span>)</h4>
+							<h4 class="panel-title">Done (<span id="done-tasks-count"><?php Countt(3); ?></span>)</h4>
 							<div class="panel-heading-btn">
 								<a href="javascript:;" class="btn btn-xs btn-icon btn-default" data-toggle="panel-expand"><i class="fa fa-expand"></i></a>
 								<a href="javascript:;" class="btn btn-xs btn-icon btn-success" data-toggle="panel-reload"><i class="fa fa-redo"></i></a>
@@ -309,7 +310,7 @@
 							<!-- DONE TASKS HERE -->
 							<?php
 								//PHP CODE HERE
-								getTasks(3);
+								getTasks('Done');
 								//DATA FROM getTasks() FUNCTION
 							?>
 						</div>
@@ -337,7 +338,7 @@
 					</div>
 					<div class="modal-body">
 							<!-- This Input Allows Storing Task Index  -->
-							<input type="" id="task-id" name="task-id">
+							<input type="hidden" id="task-id" name="task-id">
 							<div class="mb-3">
 								<label class="form-label">Title</label>
 								<input type="text" class="form-control" id="task-title" name="title" />
@@ -346,11 +347,11 @@
 								<label class="form-label">Type</label>
 								<div class="ms-3">
 									<div class="form-check mb-1">
-										<input class="form-check-input" name="task-type" type="radio" value="1" id="task-type-feature"/>
+										<input class="form-check-input" name="task-type" type="radio" value="2" id="task-type-feature" checked n/>
 										<label class="form-check-label" for="task-type-feature">Feature</label>
 									</div>
 									<div class="form-check">
-										<input class="form-check-input" name="task-type" type="radio" value="2" id="task-type-bug"/>
+										<input class="form-check-input" name="task-type" type="radio" value="1" id="task-type-bug"/>
 										<label class="form-check-label" for="task-type-bug">Bug</label>
 									</div>
 								</div>
@@ -377,7 +378,7 @@
 							</div>
 							<div class="mb-3">
 								<label class="form-label">Date</label>
-								<input type="date" class="form-control" id="task-date" name="date"/>
+								<input type="datetime-local" class="form-control" id="task-date" name="date"/>
 							</div>
 							<div class="mb-0">
 								<label class="form-label">Description</label>
@@ -406,13 +407,28 @@
    	    document.getElementById('task-id').value = id;
 		document.getElementById('task-title').value = document.getElementById(id).getAttribute('title');
 		document.getElementById('task-priority').value = document.getElementById(id).getAttribute('priority');
+		document.getElementById('task-date').value = document.getElementById(id).getAttribute('time');
 		document.getElementById('task-status').value = document.getElementById(id).getAttribute('Status');
 		document.getElementById('task-description').value = document.getElementById(id).getAttribute('description');
-		if(){
-			
+		if(document.getElementById(id).getAttribute('type')==1){
+			document.getElementById("task-type-feature").checked =true;
+		}else{
+			document.getElementById("task-type-bug").checked=true;
 		}
+		document.getElementById('task-save-btn').style.display="none";
+		document.getElementById('task-update-btn').style.display="block";
+		document.getElementById('task-delete-btn').style.display="block";
 
 		}
+		function addTask(){
+			document.getElementById('task-update-btn').style.display="none";
+			document.getElementById('task-delete-btn').style.display="none";
+			document.getElementById('task-save-btn').style.display="block";
+			document.getElementById('form-task').reset();
+			
+
+		}
+		
 
 	 
 

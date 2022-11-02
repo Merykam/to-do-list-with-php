@@ -6,41 +6,42 @@
     session_start();
 
     //ROUTING
-    if(isset($_POST['save']))        saveTask();
+    if(isset($_POST['save']))       saveTask();
     if(isset($_POST['update']))      updateTask();
     if(isset($_POST['delete']))      deleteTask();
     
 
-    function getTasks($tstatus)
-    
+    function getTasks($status)
     {
         global $conn;
-        // include('database.php');
         //CODE HERE
-        $req ="select * from tasks";
+        $req="SELECT tasks.*,priorities.name as priorityN,statuses.name as statusesN,types.name as typesN FROM tasks 
+        INNER JOIN priorities ON tasks.priority_id = priorities.id
+        INNER JOIN statuses ON tasks.status_id = statuses.id
+        INNER JOIN types ON tasks.type_id = types.id;";
+
         $query=mysqli_query($conn,$req);
+        
         while($row=mysqli_fetch_assoc($query)){
         //SQL SELECT
-        if($tstatus == 1){$icon = "fa-regular fa-circle-question ";$color="danger";};
-        if($tstatus == 2){$icon = "fas fa-circle-notch fa-spin";$color="warning";};
-        if($tstatus == 3){$icon = "fa-regular fa-circle-check";$color="green";};
-        if($row['status_id'] == $tstatus){ 
-            $priority = $row['priority_id']==1  ? "Low" :($row['priority_id']==2 ? "Medium" :(($row['priority_id']==3)? "High" :"Critical")); 
-            $type = $row['type_id']==1 ? "Feature" : "Bug";
+        if($row['statusesN'] == 'To Do'){$icon = "fa-regular fa-circle-question ";$color="danger";};
+        if($row['statusesN'] == 'In progress'){$icon = "fas fa-circle-notch fa-spin";$color="warning";};
+        if($row['statusesN'] == 'Done'){$icon = "fa-regular fa-circle-check";$color="green";};
+        if($row['statusesN'] == $status){
             $id = $row['id'];
-            echo '<button id="'.$id.'" title="'.$row['title'].'" time="'.$row['tasks_datetime'].'" description="'.$row['description'].'" Status="'.$row['status_id'].'" priority="'.$row['priority_id'].'"  class="bg-transparent w-100 border-0 border-bottom d-flex text-start pb-3" data-bs-toggle="modal" href="#modal-task" onclick="btn('.$id.')">
-            <div class="col-1 fs-3 text-'.$color.' me-10px">
+            echo '<button id="'.$row['id'].'" title="'.$row['title'].'" time="'.$row['task_datetime'].'" description="'.$row['description'].'" type="'.$row['typesN'].'" Status="'.$row['status_id'].'" priority="'.$row['priority_id'].'"  class="bg-transparent w-100 border-0 border-bottom d-flex text-start pb-3" data-bs-toggle="modal" href="#modal-task" onclick="btn('.$id.')">
+            <div class="col-1 fs-3 text-'.$color.' me-10px mt-7px">
                 <i class="'.$icon.'"></i>
             </div>
             <div class="col-11">
                 <div class="fs-4">'.$row['title'].'</div>
                 <div class="">
-                    <div class="text-gray">#'.$row['id'].' created in '.$row['tasks_datetime'].'</div>
-                    <div class="fs-5 mb-10px" title="'.$row['description'].'">'.$row['description'].'</div>
+                    <div class="text-gray">#'.$row['id'].' created in '.$row['task_datetime'].'</div>
+                    <div class="fs-5 mb-10px" >'.$row['description'].'</div>
                 </div>
                 <div class="w-300px">
-                    <span class="bg-blue-600 text-white  fs-5 rounded-2 px-15px py-5px " status="'.$row['status_id'].'" id="priority'.$id.'" data="'.$row['priority_id'].'" >'.$priority.'</span>
-                    <span class="bg-gray-300 text-black m-2 fs-5 rounded-2 px-15px py-5px" id="type'.$id.'" data="'.$row['type_id'].'">'.$type.'</span>
+                    <span class="bg-blue-600 text-white  fs-5 rounded-2 px-15px py-5px">'.$row['priorityN'].'</span>
+                    <span class="bg-gray-300 text-black m-2 fs-5 rounded-2 px-15px py-5px">'.$row['typesN'].'</span>
                 </div>
             </div>
             </button>';
@@ -49,9 +50,7 @@
 
 
     function saveTask()
-    {
-        
-        include('database.php');
+   {
         //CODE HERE
         global $conn;
         $title=$_POST['title'];
@@ -61,12 +60,10 @@
         $tasks_datetime=$_POST['date'];
         $description=$_POST['description'];
 
-        $sql="INSERT INTO `tasks` (`title`,`type_id`,`priority_id`,`status_id`,`tasks_datetime`,`description`)
+        $req="INSERT INTO `tasks` (`title`,`type_id`,`priority_id`,`status_id`,`task_datetime`,`description`)
         values ('$title','$type_id','$priority_id','$status_id','$tasks_datetime','$description')";
 
-       
-
-        $result=mysqli_query($conn,$sql);
+        mysqli_query($conn,$req);
 
         //SQL INSERT
         $_SESSION['message'] = "Task has been added successfully !";
@@ -77,6 +74,19 @@
     {
         //CODE HERE
         //SQL UPDATE
+        
+        global $conn;
+        $id=$_POST['task-id'];
+        $title=$_POST['title'];
+        $type_id=$_POST['task-type'];
+        $priority_id=$_POST['priority'];
+        $status_id=$_POST['status'];
+        $tasks_datetime=$_POST['date'];
+        $description=$_POST['description'];
+
+        $req="UPDATE `tasks` SET `title`='$title',`type_id`='$type_id',`priority_id`='$priority_id',`status_id`='$status_id',`task_datetime`='$tasks_datetime',`description`='$description' WHERE `id`=$id";
+        
+        mysqli_query($conn,$req);
         $_SESSION['message'] = "Task has been updated successfully !";
 		header('location: index.php');
     }
@@ -87,10 +97,24 @@
         global $conn;
         $id=$_POST['task-id'];
         $req="DELETE FROM `tasks` WHERE `id`=$id";
-        $res=mysqli_query($conn,$req);
+        mysqli_query($conn,$req);
         //SQL DELETE
         $_SESSION['message'] = "Task has been deleted successfully !";
 		header('location: index.php');
+    }
+
+    function Countt($Status){
+        global $conn;
+        
+        $sql = "SELECT *
+                FROM tasks
+                WHERE status_id =  $Status";
+
+        $req = mysqli_query($conn, $sql);
+
+        $rowcount = mysqli_num_rows($req);
+
+        echo $rowcount;
     }
    
 
